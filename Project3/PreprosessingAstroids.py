@@ -66,7 +66,8 @@ inputs['neo'] = inputs.neo.astype(int)
 #print(inputs[0:10]['pha'],inputs[0:10]['moid'])
 
 # Create correlation matrix
-correlation_matrix = inputs.corr().round(1)
+corr_inputs = inputs.drop("class", axis=1) # All the values in that column was MBA or so, not numeric
+correlation_matrix = corr_inputs.corr().round(1)
 # use the heatmap function from seaborn to plot the correlation matrix
 # annot = True to print the values inside the square
 plt.figure(figsize=(15,8))

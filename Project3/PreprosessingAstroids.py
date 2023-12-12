@@ -32,6 +32,15 @@ N_nan = inputs.isnull().sum(axis = 0)
 msno.matrix(inputs) 
 
 
+corr_inputs = inputs.drop("class", axis=1) # All the values in that column was MBA or so, not numeric
+correlation_matrix = corr_inputs.corr().round(1)
+# use the heatmap function from seaborn to plot the correlation matrix
+# annot = True to print the values inside the square
+plt.figure(figsize=(15,8))
+sns.heatmap(data=correlation_matrix, annot=True)
+plt.title("Correlation matrix for Astroid data")
+plt.show()
+
 # remove some data thats not interesting for further alaysis.
 inputs = inputs.drop(['id', 'spkid', 'full_name', 'pdes', 'name', 'prefix', 
                       'orbit_id', 'diameter','albedo', 'diameter_sigma',

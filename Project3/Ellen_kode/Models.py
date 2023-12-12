@@ -8,11 +8,12 @@ from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, learning_curve
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 #from skopt import BayesSearchCV
 #from skopt.space import Real, Categorical, Integer
-
+from scikitplot.metrics import plot_confusion_matrix, plot_roc, plot_cumulative_gain
+from sklearn.metrics import RocCurveDisplay, multilabel_confusion_matrix, balanced_accuracy_score
 
 import tensorflow as tf
 from keras.models import Sequential
@@ -103,14 +104,76 @@ def plotTree(rfc, Acc, n_est, eta, depth):
     plt.title("Random Forrest, N_Estimators: " + str(n_est) + 
               "   Learning rate: " + str(eta) + 
               "   Depth: " + str(depth) + 
-              "   Accuracy: " + str(Acc))
+              "   Accuracy: " + str(round(Acc,3)))
     plt.show()
+    return 
     
     
-def plotGrid(data, x_ax, y_ax, title):
+def plotGrid(data, x_ax, y_ax, T1):
     sns.set()
     fig, ax1 = plt.subplots(figsize = (10, 10))
     sns.heatmap(data, annot=True, ax=ax1, cmap="viridis",  fmt=".2%")
-    ax1.set_title(title)
-    ax1.set_ylabel(x_ax)
-    ax1.set_xlabel(y_ax)
+    ax1.set_title(T1)
+    ax1.set_xlabel(x_ax)
+    ax1.set_ylabel(y_ax)
+    return
+    
+    
+def plotMultiConfusion(y_test, y_pred,T1):
+    conf_mat = multilabel_confusion_matrix(y_test, y_pred)/len(y_test)*100
+    
+    f, axes = plt.subplots(3, 4, figsize=(25, 15))
+    axes = axes.ravel()
+    for i in range(12):
+        disp = ConfusionMatrixDisplay(conf_mat[i][0:2][0:2])
+        disp.plot(ax=axes[i], values_format='.4g')
+        disp.ax_.set_title(f'class {i}')
+        plt.tick_params(axis=u'both', which=u'both',length=0)
+        plt.grid(b=None)
+        if i<8:
+            disp.ax_.set_xlabel('')
+        if i%4!=0:
+            disp.ax_.set_ylabel('')
+        disp.im_.colorbar.remove()
+    
+    plt.subplots_adjust(wspace=0.10, hspace=0.1)
+    f.colorbar(disp.im_, ax=axes)
+    plt.show()
+    return
+    
+
+def plotConfusion(y_test, y_pred,T1):
+    cm = confusion_matrix(y_test, y_pred, normalize='all')
+    disp = ConfusionMatrixDisplay(cm, display_labels=['Hazardious','Non-hazardious'])
+    disp.plot()
+    #plot_confusion_matrix(y_test, y_pred)
+    plt.tick_params(axis=u'both', which=u'both',length=0)
+    plt.grid(b=None)
+    plt.title(T1)
+    plt.show()
+    
+    return
+
+
+def plotROC (y_test, y_prob, T1):
+    plt.figure()
+    plot_roc(y_test, y_prob)
+    plt.axis("square")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title(T1)
+    plt.legend(fontsize='xx-small')
+    plt.show()
+
+    return        
+
+
+def plotGain(y_true, y_prob,T1):
+    plt.figure()
+    plot_cumulative_gain(y_true, y_prob)
+    plt.axis("square")
+    plt.xlabel("Gain")
+    plt.ylabel("Percentage of sample")
+    plt.title(T1)
+    plt.legend(fontsize='xx-small')
+    plt.show()

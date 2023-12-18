@@ -218,13 +218,14 @@ def eta_and_lambda_grid(X_train, X_test, y_train, y_test, eta_vals, lmbda_vals, 
     return acc_vals
 
 
-def PreRec(pre, rec, T1):
+def PreRec(pre, rec, T1, filename=None):
     disp = PrecisionRecallDisplay(precision=pre, recall=rec)
     disp.plot()
     plt.title(T1, fontsize=16)
     plt.xlabel("Recall")
     plt.ylabel("Precision")
     plt.show()
+    plt.savefig(f"plots/{filename}.pdf")
 
 
 def plotTree(dtc, Acc, depth):
@@ -246,7 +247,7 @@ def plotForest(rfc, Acc, n_est, eta, depth):
     plt.show()
 
 
-def plotGrid(data, x_ax, y_ax, T1):
+def plotGrid(data, x_ax, y_ax, T1, filename=None):
     sns.set()
     sns.set(font_scale=1.4)
     fig, ax1 = plt.subplots(figsize = (10, 10))
@@ -254,6 +255,9 @@ def plotGrid(data, x_ax, y_ax, T1):
     ax1.set_title(T1, fontsize=16)
     ax1.set_xlabel(x_ax)
     ax1.set_ylabel(y_ax)
+    plt.tight_layout()
+    plt.savefig(f"plots/{filename}.pdf")
+    plt.show()
 
 
 def plotMultiConfusion(y_test, y_pred,T1):
@@ -283,14 +287,16 @@ def plotMultiConfusion(y_test, y_pred,T1):
     plt.show()
 
 
-def plotConfusion(y_test, y_pred,T1):
+def plotConfusion(y_test, y_pred,T1, filename=None):
     cm = confusion_matrix(y_test, y_pred,normalize='true')
     disp = ConfusionMatrixDisplay(cm, display_labels=['Non-hazardious','Hazardious'])
     disp.plot()
     #to take away axes cross in matrix
     disp.ax_.tick_params(axis=u'both', which=u'both',length=0)
-    disp.ax_.grid(b=None)
+    disp.ax_.grid(visible=None)
     plt.title(T1, fontsize=16)
+    plt.tight_layout()
+    plt.savefig(f"plots/{filename}.pdf")
     plt.show()
 
 

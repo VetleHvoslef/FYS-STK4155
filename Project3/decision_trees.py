@@ -3,10 +3,6 @@ import PreprosessingAstroids as pp
 import Models as m
 
 
-
-#Main code
-np.random.seed(0)
-
 #Data type
 AsteroidClass = 1
 Hazardious = 0

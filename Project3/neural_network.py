@@ -1,7 +1,7 @@
 import numpy as np
 import json
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import precision_recall_curve, accuracy_score, precision_recall_fscore_support, confusion_matrix
 from models_and_plotting import eta_and_lambda_grid, PreRec, plotGrid, plotMultiConfusion, plotConfusion
 from PreprosessingAstroids import get_haz_data, get_classi_data
 
@@ -19,16 +19,16 @@ def save_data(y_pred_test, y_pred_train, y_test, y_train, X_test, X_train, pre, 
 
 
 def load_data(filename):
-    np.save(f"y_pred_test_{filename}", y_pred_test)
-    np.save(f"y_pred_train_{filename}", y_pred_train)
-    np.save(f"y_test_{filename}", y_test)
-    np.save(f"y_train_{filename}", y_train)
-    np.save(f"X_test_{filename}", X_test)
-    np.save(f"X_train_{filename}", X_train)
-    y_pred = np.load(f"pre_{filename}")
-    y_pred = np.load(f"y_pred_{filename}")
-    y_pred = np.load(f"y_pred_{filename}")
-    return y_pred, pre, rec, data
+    y_pred_test = np.load(f"y_pred_test_{filename}.npy")
+    y_pred_train = np.load(f"y_pred_train_{filename}.npy")
+    y_test = np.load(f"y_test_{filename}.npy")
+    y_train = np.load(f"y_train_{filename}.npy")
+    X_test = np.load(f"X_test_{filename}.npy")
+    X_train = np.load(f"X_train_{filename}.npy")
+    pre = np.load(f"pre_{filename}.npy")
+    rec = np.load(f"rec_{filename}.npy")
+    data = np.load(f"data_{filename}.npy")
+    return y_pred_test, y_pred_train, y_test, y_train, X_test, X_train, pre, rec, data
 
 
 def get_parameters(filename):
@@ -74,31 +74,33 @@ def binary(filename, data_imbalance):
     data = eta_and_lambda_grid(X_train, X_test, y_train, y_test, eta_vals, lmbda_vals, hidden_layers, activation, solver)
 
     save_data(y_pred_test, y_pred_train, y_test, y_train, X_test, X_train, pre, rec, data, f"{data_imbalance}_binary")
-    # binary_analysis(f"{data_imbalance}_binary")
+    binary_analysis(data_imbalance)
 
 
 def binary_analysis(data_imbalance):
     y_pred_test, y_pred_train, y_test, y_train, X_test, X_train, pre, rec, data = load_data(f"{data_imbalance}_binary")
-    title = "data_imbalance, hazardous"
-    PreRec(pre, rec, title) # title kommer
-    plotConfusion(y_test, y_pred, title)
-    plotGrid(data, "eta", "lambda", title)
+    PreRec(pre, rec, "Precision/Recall", filename="PreRec_RUS")
+    plotConfusion(y_test, y_pred_test, "Confusion Matrix", filename="Confusion_RUS")
 
-    # y_pred_test
-    # y_test
 
-    # y_pred_train
-    # y_train
+
+    # Printing different scores
+    acc_test = accuracy_score(y_test, y_pred_test)
+    acc_train = accuracy_score(y_train, y_pred_train)
 
     
-    # precsiosion
     # precision_recall_fscore_support()
-    #     print(f"Precision: {tmp[0][0] * 100 :.2f}%")
-    #     print(f"Recall: {tmp[1][0] * 100 :.2f}%")
-    #     print(f"F1 score: {tmp[2][0] * 100 :.2f}%")
-    
-    # tn, _, _, tp = confusion_matrix(y_test, y_pred_test).ravel()
-
+    tmp = precision_recall_fscore_support(y_test, y_pred_test)
+    precision = tmp[0][0]
+    recall = tmp[1][0]
+    f1_score = tmp[2][0]
+    import ipdb;ipdb.set_trace()
+    tn, _, _, tp = confusion_matrix(y_test, y_pred_test).ravel()
+    print(f"precision = {precision}")
+    print(f"recall = {recall}")
+    print(f"f1_score = {f1_score}")
+    print(f"TN = {tn}")
+    print(f"TP = {tp}")
 
 def mulitclass(filename):
     activation, hidden_layers, solver, lmbda_value, learning_rate = get_parameters(filename)
@@ -120,6 +122,7 @@ def mulitclass(filename):
 
 
 def multiclass_analysis():
+    # Was not able to finish this
     y_pred_test, y_pred_train, y_test, y_train, X_test, X_train, pre, rec, data = load_data("multiclass")
     title = "multiclass"
     PreRec(pre, rec, title) # title kommer
@@ -137,12 +140,8 @@ def multiclass_analysis():
 def main(saved=False):
     if not(saved): 
         binary("best_parameters_binary_RUS_5372s_03-54-06_18-12-2023.txt", "RUS")
-        binary("best_parameters_binary_unbalanced_1481s_02-32-23_18-12-2023.txt", "unbalanced")
-        multiclass("best_parameters_mulit_class_2406s_02-57-05_18-12-2023.txt")
     else:
         binary_analysis("RUS")
-        binary_analysis("unbalanced")
-        multiclass_analysis()
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,9 @@
+Total runtime of the optimization: 2406 seconds
+Number of trials: 10
+Score: 0.998868432484032
+Total runtime of the optimization: 2406Number of trials: 10{'activation': 'tanh',
+ 'layer_1': 56,
+ 'learning_rate': 8.158412154297448,
+ 'lmbda_value': 0.006355310221025527,
+ 'n_layers': 1,
+ 'optimizer': 'lbfgs'}

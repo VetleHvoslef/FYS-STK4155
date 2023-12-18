@@ -27,7 +27,7 @@ def define_architecture(trial, layers=2):
 
 
 
-def objective_binary(trial, data_imbalance):
+def objective_binary(trial, data_imbalance, X, y):
     # Setting the parameters:
     activation = trial.suggest_categorical("activation", ["logistic", "tanh", "relu"])
     solver = trial.suggest_categorical("optimizer", ["lbfgs", "sgd", "adam"])
@@ -49,7 +49,7 @@ def objective_binary(trial, data_imbalance):
         return accuracy_score
 
     # Getting the data:
-    X, y = get_haz_data(features, data_imbalance, random_state=None, return_X_y=True, no_plotting=True)
+
 
     # Defining the model and training the model:
     model = MLPClassifier(hidden_layer_sizes=hidden_layers, activation=activation, solver=solver, alpha=lmbda_value, learning_rate_init=learning_rate)
@@ -84,16 +84,16 @@ def objective_multi_class(trial):
     return accuracy_score
 
 
-def best_parameters_binary(n_trials=100, data_imbalance="RUS"):
+def best_parameters_binary(n_trials=100, X=None, y=None, data_imbalance="RUS"):
     now = datetime.datetime.now()
 
     start = time.perf_counter()
     study = optuna.create_study(direction="maximize")
-    study.optimize(lambda trial: objective_binary(trial, data_imbalance), n_trials=n_trials, gc_after_trial=True, show_progress_bar=True)
+    study.optimize(lambda trial: objective_binary(trial, data_imbalance, X, y), n_trials=n_trials, gc_after_trial=True, show_progress_bar=True)
     end = time.perf_counter()
 
     time_and_date = now.strftime("%H-%M-%S_%d-%m-%Y")
-    total_runtime = int(abs(end - start), 0)
+    total_runtime = int(abs(end - start))
     filename = f"best_parameters_binary_{data_imbalance}_{total_runtime}s_{time_and_date}.txt"
     print(f"Best hyperparameters: {study.best_params}")
     print(f"Score: {study.best_trial.value}")
@@ -134,9 +134,10 @@ def best_parameters_multi_class(n_trials=100):
     
 
 def main():
-    # best_parameters_binary(100)
-    # best_parameters_binary(10, "unbalanced")
-    best_parameters_multi_class(10)
+    X, y = get_haz_data("all", "RUS", random_state=None, return_X_y=True, no_plotting=True)
+    best_parameters_binary(1000, X, y)
+    # best_parameters_binary(10, data_imbalance="unbalanced")
+    # best_parameters_multi_class(10)
 
 ## Optimaliser hyperparameterne med optuna:
 if __name__ == "__main__":

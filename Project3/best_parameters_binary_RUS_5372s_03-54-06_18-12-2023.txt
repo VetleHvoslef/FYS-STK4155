@@ -1,0 +1,9 @@
+Total runtime of the optimization: 5372 seconds
+Number of trials: 1000
+Score: 0.9949173037115979
+{'activation': 'logistic',
+ 'layer_1': 66,
+ 'learning_rate': 0.011118272321770192,
+ 'lmbda_value': 0.00010997698970895444,
+ 'n_layers': 1,
+ 'optimizer': 'adam'}

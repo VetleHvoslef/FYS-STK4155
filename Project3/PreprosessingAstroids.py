@@ -9,8 +9,6 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 import missingno as msno 
-np.random.seed(0)
-
 
 
 
@@ -30,7 +28,7 @@ def SplitScale(X,Y, random_state=0):
 
 
 def get_classi_data(random_state=0, return_X_y=False, no_plotting=False):
-    inputs = getData()
+    inputs = getData(no_plotting=no_plotting)
     
     #Encode output class
     y = inputs.loc[:, 'class']
@@ -40,7 +38,7 @@ def get_classi_data(random_state=0, return_X_y=False, no_plotting=False):
     #CL = le.transform(CL_label) #returns array with corresponding number for each class
     Y = le.transform(y)
 
-    if no_plotting:
+    if not(no_plotting):
         # Plot to see class diststribution
         plt.plot(Y,'*')
         plt.title("Asteroid class distribution")
@@ -78,7 +76,7 @@ def get_diam_data(inputs):
 
 
 def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
-    inputs = getData(no_plotting=False)
+    inputs = getData(no_plotting=no_plotting)
     
     le = LabelEncoder()
     le.fit(inputs.loc[:, 'class'])
@@ -95,8 +93,8 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
     print(inputs['pha'].value_counts())
     print("\n Propotion of Potentialy Hazardious Aasteroids in data set: ", 
           round(len(class_1)/len(inputs)*100,2),"%")
-    
-    if no_plotting:
+       
+    if not(no_plotting):
         plt.figure()
         plt.plot(inputs[inputs['pha'] == 1]['class'],'*')
         plt.title("Class distribution of hazardious astroids in dataset")
@@ -185,7 +183,7 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
     print("Split and Scale the data")
     X_train_scaled, X_test_scaled, y_train, y_test  = SplitScale(X, y, random_state=0)
     
-    if no_plotting:
+    if not(no_plotting):
         plt.figure()
         plt.plot(y_train,'*')
         plt.title("Distribution of hazardious and Non-hazardious astroids in Train data")
@@ -242,7 +240,7 @@ def getData(no_plotting=False):
     inputs['neo'] = inputs.neo.astype(int)
     
     # Create correlation matrix
-    if no_plotting:
+    if not(no_plotting):
         inputs_numerical = inputs.drop("MBA")
         correlation_matrix = inputs_numerical.corr().round(1)
         plt.figure(figsize=(15,8))

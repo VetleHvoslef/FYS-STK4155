@@ -2,13 +2,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 import seaborn as sns
-from  sklearn.feature_selection import chi2 , f_classif
-from sklearn.decomposition import PCA
+from  sklearn.feature_selection import f_classif
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-import missingno as msno 
+import missingno as msno
 
 
 
@@ -16,7 +13,7 @@ def SplitScale(X,Y, random_state=0):
     X_train, X_test, y_train, y_test  = train_test_split(X, Y, test_size=0.2, 
                                                          random_state=0)
     if random_state is None:
-        X_train, X_test, y_train, y_test  = train_test_split(X, Y, test_size=0.2)
+            X_train, X_test, y_train, y_test  = train_test_split(X, Y, test_size=0.2)
 
     scaler = StandardScaler()
     scaler.fit(X_train)
@@ -35,6 +32,7 @@ def get_classi_data(random_state=0, return_X_y=False, no_plotting=False):
     le = LabelEncoder()
     le.fit(y)
     CL_label = list(le.classes_) # returns array with labels for each class
+    print("Asteroids classes:", CL_label)
     #CL = le.transform(CL_label) #returns array with corresponding number for each class
     Y = le.transform(y)
 
@@ -60,21 +58,6 @@ def get_classi_data(random_state=0, return_X_y=False, no_plotting=False):
 
 
 
-def get_diam_data(inputs):
-    inputs = getData()
-    #Feature matrix for regression to decide the diameter
-    X = inputs[:]['albedo'],inputs[:]['H']
-    y = inputs[:]['diameter']
-    X = X.dropna()
-    print("Number of data for regression: ", len(X))
-    
-    print("Split and Scale the data")
-    X_train_scaled, X_test_scaled, y_train, y_test  = SplitScale(X,y)
-    
-    return X_train_scaled, X_test_scaled, y_train, y_test
-
-
-
 def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
     inputs = getData(no_plotting=no_plotting)
     
@@ -83,7 +66,8 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
     CL_label = list(le.classes_) # returns array with labels for each class
     CL = le.transform(CL_label) #returns array with corresponding number for each class
     inputs['class'] = inputs['class'].replace(CL_label, CL)
-        
+    
+
     class_count_0, class_count_1 = inputs['pha'].value_counts()
     # Separate class
     class_0 = inputs[inputs['pha'] == 0]
@@ -93,7 +77,7 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
     print(inputs['pha'].value_counts())
     print("\n Propotion of Potentialy Hazardious Aasteroids in data set: ", 
           round(len(class_1)/len(inputs)*100,2),"%")
-       
+    
     if not(no_plotting):
         plt.figure()
         plt.plot(inputs[inputs['pha'] == 1]['class'],'*')
@@ -133,8 +117,8 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
 
     elif S == "unbalanced":
         pass
-        
 
+    
     # Crate output for hazzardios asteroids
     y = inputs[:]['pha']
     inputs = inputs.drop(['pha'], axis='columns')
@@ -148,14 +132,10 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
     elif fet == 'select':
         
         # Analysis to choos most important features
-        #c,pc = chi2(X, y) # need only positiv inputs in X
         f,pf = f_classif(inputs, y)
         
-        #pca = PCA(n_components=0.97)
-        #X2D = pca.fit_transform(X)
-        
         #Select the features with best score
-        #make a dict of features and scores
+        #saves features and scores in rising order
         d = {'features':inputs.columns , 'classif':f}
         df = pd.DataFrame(data=d)
         #replace Inf with O
@@ -171,15 +151,19 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
 
         
            
-    # Just moid
-    elif fet == 'one':
-        X_1 = np.array(inputs[:]['moid'])
-        X = np.reshape(X_1,(len(X_1),1))
+    # exclude moid(distance to earth)  and H (max magnitude)
+    # the best features to identify hazardous asteroids.
+    elif fet == 'drop':
+        inputs = inputs.drop(['moid'], axis='columns')
+        X = inputs.drop(['H'], axis='columns')
 
     if return_X_y:
         return X, y
+
     
-    
+    #Print out feauter-labels
+    print("Features: ", X.columns)
+    print(" ")
     print("Split and Scale the data")
     X_train_scaled, X_test_scaled, y_train, y_test  = SplitScale(X, y, random_state=0)
     
@@ -198,13 +182,11 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
         plt.plot(inputs[:]['class'],'*')
         plt.title("Class distribution of astroids in dataset")
         plt.show()
-
-
-    return X_train_scaled, X_test_scaled, y_train, y_test 
+   return X_train_scaled, X_test_scaled, y_train, y_test 
 
 
 
-def getData(no_plotting=False): 
+def getData(no_plotting=False):
     print('Load files')
     inputs = pd.read_csv('dataset.csv', low_memory=False)
     
@@ -248,7 +230,6 @@ def getData(no_plotting=False):
         plt.title("Correlation matrix for Astroid data")
         plt.show()
     #important ones from correlation matrix: per, moid, a, ad, q  
-
     return inputs
 
 

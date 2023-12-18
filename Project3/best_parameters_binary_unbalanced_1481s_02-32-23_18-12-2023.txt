@@ -1,0 +1,9 @@
+Total runtime of the optimization: 1481 seconds
+Number of trials: 10
+Score: 0.9995548810245245
+{'activation': 'relu',
+ 'layer_1': 51,
+ 'learning_rate': 0.07892347325088851,
+ 'lmbda_value': 0.00014129433812704614,
+ 'n_layers': 1,
+ 'optimizer': 'lbfgs'}

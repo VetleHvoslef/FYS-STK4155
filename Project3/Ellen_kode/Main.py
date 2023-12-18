@@ -12,15 +12,12 @@ np.random.seed(0)
 #Data type
 AsteroidClass = 0
 Hazardious = 1
-Feature = "o" # 'all = a', 'selected = s', 'one = o'
-#Diameter = 0
+Feature = "select" # 'all', 'select', 'one'
 
 #Model
 GBoost = 0
 RandomForest = 1
 # DecisionTree
-# DNN
-# Regression OLS, Ridge, Lasso (With ADAM and SGD)
 
 
 #AsteroidClass (Classifier)
@@ -33,16 +30,11 @@ if AsteroidClass:
 if Hazardious:
     print("Hazardious Astroids , Binary Classification")
     DataType = "Hazardious asteroides"
-    # How to hndel imbapanced data: "RUS", "oversampling", "Undersampling"
+    # How to handle imbalanced data: "RUS", "OS", "US"
     S = "RUS"
 
     X_train_scaled, X_test_scaled, y_train, y_test = pp.get_haz_data(Feature,S)
-
-#Diameter (Regressor)
-#if Diameter:
-#    print("Diameter, Regression")
-#    X_train_scaled, X_test_scaled, y_train, y_test = pp.getData("Diameter")
-    
+  
 #............................................................. 
 
 

@@ -10,8 +10,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, learning_curve
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-#from skopt import BayesSearchCV
-#from skopt.space import Real, Categorical, Integer
 from scikitplot.metrics import plot_confusion_matrix, plot_roc, plot_cumulative_gain
 from sklearn.metrics import RocCurveDisplay, multilabel_confusion_matrix, balanced_accuracy_score
 
@@ -105,9 +103,7 @@ def plotTree(rfc, Acc, n_est, eta, depth):
               "   Learning rate: " + str(eta) + 
               "   Depth: " + str(depth) + 
               "   Accuracy: " + str(round(Acc,3)))
-    plt.show()
-    return 
-    
+    plt.show()    
     
 def plotGrid(data, x_ax, y_ax, T1):
     sns.set()
@@ -116,7 +112,6 @@ def plotGrid(data, x_ax, y_ax, T1):
     ax1.set_title(T1)
     ax1.set_xlabel(x_ax)
     ax1.set_ylabel(y_ax)
-    return
     
     
 def plotMultiConfusion(y_test, y_pred,T1):
@@ -139,20 +134,18 @@ def plotMultiConfusion(y_test, y_pred,T1):
     plt.subplots_adjust(wspace=0.10, hspace=0.1)
     f.colorbar(disp.im_, ax=axes)
     plt.show()
-    return
     
 
 def plotConfusion(y_test, y_pred,T1):
-    cm = confusion_matrix(y_test, y_pred, normalize='all')
-    disp = ConfusionMatrixDisplay(cm, display_labels=['Hazardious','Non-hazardious'])
+    print(len(y_test))
+    cm = confusion_matrix(y_test, y_pred,normalize='true')
+    disp = ConfusionMatrixDisplay(cm, display_labels=['Non-hazardious','Hazardious'])
     disp.plot()
     #plot_confusion_matrix(y_test, y_pred)
     plt.tick_params(axis=u'both', which=u'both',length=0)
     plt.grid(b=None)
     plt.title(T1)
     plt.show()
-    
-    return
 
 
 def plotROC (y_test, y_prob, T1):
@@ -164,8 +157,6 @@ def plotROC (y_test, y_prob, T1):
     plt.title(T1)
     plt.legend(fontsize='xx-small')
     plt.show()
-
-    return        
 
 
 def plotGain(y_true, y_prob,T1):

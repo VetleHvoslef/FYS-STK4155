@@ -34,7 +34,13 @@ To generate the result for the Neural Network we must first run the script **hyp
 python3 hyperparameters_neural_network.py
 ```
 
-This script generates the best hyperparameters that Optuna manages to find after a certain time. The files **best_parameters_binary_RUS_5372s_03-54-06_18-12-2023.txt**, **best_parameters_binary_unbalanced_1481s_02-32-23_18-12-2023.txt** and **best_parameters_mulit_class_2406s_02-57-05_18-12-2023.txt**, are examples of this.
+This script generates the best hyperparameters that Optuna manages to find after a certain time. The files:
+
+- **best_parameters_binary_RUS_5372s_03-54-06_18-12-2023.txt**
+- **best_parameters_binary_unbalanced_1481s_02-32-23_18-12-2023.txt**
+- **best_parameters_mulit_class_2406s_02-57-05_18-12-2023.txt**
+
+are examples of this.
 
 To run the analysis of the Neural Network hyperparameters run **neural_network.py**:
 

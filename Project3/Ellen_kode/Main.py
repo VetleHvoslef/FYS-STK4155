@@ -1,23 +1,25 @@
 import numpy as np
 import PreprosessingAstroids as pp
 import Models as m
-from scikitplot.metrics import plot_confusion_matrix, plot_roc, plot_cumulative_gain
-from sklearn.metrics import RocCurveDisplay, multilabel_confusion_matrix
-from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
-import matplotlib.pyplot as plt
+
+
 
 #Main code
 np.random.seed(0)
 
 #Data type
-AsteroidClass = 0
-Hazardious = 1
-Feature = "select" # 'all', 'select', 'one'
+AsteroidClass = 1
+Hazardious = 0
+Feature = "all" # 'all', 'select', 'drop'
+
+# Only relevant for Hazaroud asteroid classification
+# How to handel imbapanced data: "RUS", "OS", "US"
+S = "RUS"
 
 #Model
-GBoost = 0
-RandomForest = 1
-# DecisionTree
+DecisionTree = 0
+RandomForest = 0
+GBoost = 1
 
 
 #AsteroidClass (Classifier)
@@ -30,9 +32,6 @@ if AsteroidClass:
 if Hazardious:
     print("Hazardious Astroids , Binary Classification")
     DataType = "Hazardious asteroides"
-    # How to handle imbalanced data: "RUS", "OS", "US"
-    S = "RUS"
-
     X_train_scaled, X_test_scaled, y_train, y_test = pp.get_haz_data(Feature,S)
   
 #............................................................. 
@@ -40,39 +39,52 @@ if Hazardious:
 
 
 ####################################
+#      Decicion tree
+####################################
+if DecisionTree:
+    print("\n Run Decision Tree")
+    MaxDepth = np.linspace(1,9,9)
+    
+    for i in range(len(MaxDepth)):
+
+        dtc, tmp1, tmp2 = m.run_DecisionTree(X_train_scaled, y_train, 
+                                             X_test_scaled, y_test, 
+                                             int(MaxDepth[i]), DataType)
+        
+
+
+
+
+
+####################################
 #      Random Forest 
 ####################################
 if RandomForest:
-    print("Run Random Forest")
-    N_Estimators = np.linspace(200,200,1)
-    LearningRate = np.logspace(-4, -4, 1)
-    MaxDepth = 3   
-    
+    print("\n Run Random Forest")
+    N_Estimators = np.linspace(50,200,4)
+    LearningRate = np.logspace(-5, -1, 5)
+    # make loop over maxdepth insteda of learnrate (also uncoment in for-loop)
+    #maxdepth = np.linspace(3,9,7)
+    MaxDepth = 4
+
     rfc_Train_accuracy=np.zeros((len(N_Estimators),len(LearningRate)))
-    rfc_Test_accuracy=np.zeros((len(N_Estimators),len(LearningRate))) 
+    rfc_Test_accuracy=np.zeros((len(N_Estimators),len(LearningRate)))  
     
     for i in range(len(N_Estimators)):
-        for j in range(len(LearningRate)):
+        for j in range(len(LearningRate)): # Comment out this if loop over MaxDepth
+        #for k in range(len(maxdepth)):
+            #j=0
+            #MaxDepth = int(maxdepth[k])
             rfc, tmp1, tmp2 = m.run_RandomForest(X_train_scaled, y_train, 
                                                  X_test_scaled, y_test, 
                                                  int(N_Estimators[i]), 
-                                                 LearningRate[j], MaxDepth)
+                                                 LearningRate[j], MaxDepth, DataType)
             rfc_Train_accuracy[i][j] = tmp1
             rfc_Test_accuracy[i][j] =  tmp2
-            y_prob = rfc.predict_proba(X_test_scaled)
-            
-            #Make plots
-            T1 = DataType + ", Random Forest, " + ", Eta: " + str(LearningRate[j]) +". Estim: " + str(N_Estimators[i])
-            m.plotTree(rfc, tmp2, N_Estimators[i], LearningRate[j], MaxDepth)
-            m.plotROC(y_test, y_prob,T1+" ROC")
-            
-            if AsteroidClass:
-                m.plotMultiConfusion(y_test, rfc.predict(X_test_scaled),T1+" Confusion Matrix")
 
-            if Hazardious:
-                m.plotConfusion(y_test, rfc.predict(X_test_scaled),T1+" Confusion Matrix")    
-                m.plotGain(y_test, y_prob,T1+" Cumulative Gain")
-        
+            
+    #Make gridplpot of accuracy for different learnrate and number of estimators        
+    T1 = DataType + ", Random Forest, " + ", Eta: " + str(LearningRate[j]) +". Estim: " + str(N_Estimators[i])    
     m.plotGrid(rfc_Test_accuracy, "log(learn_rate)", "N estimators", T1+" Test accuracy" )
     m.plotGrid(rfc_Train_accuracy, "log(learn_rate)", "N estimators", T1+" Train accuracy")
     
@@ -84,26 +96,14 @@ if RandomForest:
 ####################################
 #      GBoost 
 ####################################
-# Accuracy: 99.99%, n_est = 100, eta = 10**-3, depth = 3
 if GBoost:    
     print("Run GBoost")
     n_est = 100
-    eta = 1E-3
+    eta = 0.001
     depth = 3
-    #HisGradientBoostClassifier Large dataset
+    #No loop since the GBoost takes long time to run. 
     gbc, Train_acc_gbc, Test_acc_gbc = m.run_GradientBoost(X_train_scaled, y_train, 
                                                             X_test_scaled, y_test, 
-                                                            n_est, eta, depth)
+                                                            n_est, eta, depth, DataType)
     
-    #Make plots
-    T1 = DataType + ", GradientBoost, " + ", Eta: " + str(eta) +". Estim: " + str(n_est) + ", Depth: " + str(depth)
-    m.plotTree(gbc, tmp2, N_Estimators[i], LearningRate[j], MaxDepth)
-    m.plotROC(y_test, y_prob,T1+"ROC")
-    
-    if AsteroidClass:
-        m.plotMultiConfusion(y_test, gbc.predict(X_test_scaled),T1+"Confusion Matrix")
-
-    if Hazardious:
-        m.plotConfusion(y_test, gbc.predict(X_test_scaled),T1+"Confusion Matrix")    
-        m.plotGain(y_test, y_prob,T1+"Cumulative Gain")
 

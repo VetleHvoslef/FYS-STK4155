@@ -182,7 +182,7 @@ def get_haz_data(fet, S, random_state=0, return_X_y=False, no_plotting=False):
         plt.plot(inputs[:]['class'],'*')
         plt.title("Class distribution of astroids in dataset")
         plt.show()
-   return X_train_scaled, X_test_scaled, y_train, y_test 
+    return X_train_scaled, X_test_scaled, y_train, y_test
 
 
 

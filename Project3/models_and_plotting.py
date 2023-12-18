@@ -1,20 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import warnings
+from sklearn.exceptions import ConvergenceWarning
 
 from sklearn import tree
 from sklearn.ensemble import GradientBoostingClassifier 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, PrecisionRecallDisplay
 from sklearn.metrics import precision_recall_fscore_support, precision_recall_curve
 
 from scikitplot.metrics import plot_roc
 from sklearn.metrics import multilabel_confusion_matrix
-
-
-
-np.random.seed(0)
 
 ####################
 #   Desicion tree
@@ -135,12 +134,7 @@ def run_RandomForest(X_train_scaled, y_train, X_test_scaled, y_test, n_est, eta,
         print(f"Recall: {tmp[1][0] * 100 :.2f}%")
         print(f"F1 score: {tmp[2][0] * 100 :.2f}%")
 
-    
-
     return rfc, Train_accuracy, Test_accuracy
-
-
-
 
 
 ####################################
@@ -203,7 +197,25 @@ def run_GradientBoost(X_train_scaled, y_train, X_test_scaled, y_test, n_est, eta
     
     return gbc, Train_accuracy, Test_accuracy
 
+####################################
+#      MLPClassifier
+####################################
+def eta_and_lambda_grid(X_train, X_test, y_train, y_test, eta_vals, lmbda_vals, hidden_layers, activation, solver):
+    acc_vals = np.zeros((len(eta_vals), len(lmbda_vals)))
 
+    # Do grid search of eta and lambda values
+    for i in range(len(eta_vals)):
+        for j in range(len(lmbda_vals)):
+            network = MLPClassifier(hidden_layer_sizes=hidden_layers, activation=activation, solver=solver, alpha=lmbda_vals[j], learning_rate_init=eta_vals[i])
+
+            # If it does not converge ignore it, the accuracy value for that will be None or zero 
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                        "ignore", category=ConvergenceWarning, module="sklearn"
+                        )
+                network.fit(X_train, y_train)
+            acc_vals[i][j] = network.score(X_test, y_test)
+    return acc_vals
 
 
 def PreRec(pre, rec, T1):
@@ -213,8 +225,6 @@ def PreRec(pre, rec, T1):
     plt.xlabel("Recall")
     plt.ylabel("Precision")
     plt.show()
-    return
-    
 
 
 def plotTree(dtc, Acc, depth):
@@ -224,8 +234,6 @@ def plotTree(dtc, Acc, depth):
               "   Depth: " + str(depth) + 
               "   Accuracy: " + str(round(Acc,3)), fontsize=16)
     plt.show()
-    return
-
 
 
 def plotForest(rfc, Acc, n_est, eta, depth):
@@ -236,9 +244,8 @@ def plotForest(rfc, Acc, n_est, eta, depth):
               "   Depth: " + str(depth) + 
               "   Accuracy: " + str(round(Acc,3)), fontsize=16)
     plt.show()
-    return 
-    
-    
+
+
 def plotGrid(data, x_ax, y_ax, T1):
     sns.set()
     sns.set(font_scale=1.4)
@@ -247,9 +254,8 @@ def plotGrid(data, x_ax, y_ax, T1):
     ax1.set_title(T1, fontsize=16)
     ax1.set_xlabel(x_ax)
     ax1.set_ylabel(y_ax)
-    return
-    
-    
+
+
 def plotMultiConfusion(y_test, y_pred,T1):
     # make a confusion matrix for each class
     #no normalization available
@@ -275,8 +281,7 @@ def plotMultiConfusion(y_test, y_pred,T1):
     f.colorbar(disp.im_, ax=axes)
     f.suptitle(T1, fontsize=26)
     plt.show()
-    return
-    
+
 
 def plotConfusion(y_test, y_pred,T1):
     cm = confusion_matrix(y_test, y_pred,normalize='true')
@@ -287,11 +292,9 @@ def plotConfusion(y_test, y_pred,T1):
     disp.ax_.grid(b=None)
     plt.title(T1, fontsize=16)
     plt.show()
-    
-    return
 
 
-def plotROC (y_test, y_prob, T1):
+def plotROC(y_test, y_prob, T1):
     plt.figure()
     plot_roc(y_test, y_prob)
     plt.axis("square")
@@ -300,5 +303,3 @@ def plotROC (y_test, y_prob, T1):
     plt.title(T1, fontsize=16)
     plt.legend(fontsize='xx-small')
     plt.show()
-
-    return        
